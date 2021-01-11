@@ -1,0 +1,57 @@
+version: '3'
+
+services:
+
+  wordpress2:
+    image: wordpress:latest
+    container_name: wordpress2
+    restart: always
+    expose:
+      - 80
+    environment:
+      WORDPRESS_DB_HOST: db_wordpress2
+      WORDPRESS_DB_USER: exampleuser
+      WORDPRESS_DB_PASSWORD: examplepass
+      WORDPRESS_DB_NAME: exampledb
+      VIRTUAL_HOST: wordpress2.valle.ml
+      VIRTUAL_PORT: 80
+    volumes:
+      - wordpress2:/var/www/html
+      - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini 
+
+  db_wordpress2:
+    image: mysql:latest
+    container_name: db_wordpress2
+    restart: always
+    ports:
+     - "3307:3306"
+    environment:
+      MYSQL_DATABASE: exampledb
+      MYSQL_USER: exampleuser
+      MYSQL_PASSWORD: examplepass
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
+    volumes:
+      - db2:/var/lib/mysql
+
+
+  phpmyadmin:
+      image: phpmyadmin/phpmyadmin
+      container_name: phpmyadmin-wordp2
+      environment:
+        PMA_HOST: db_wordpress2
+        VIRTUAL_HOST: pma2.valle.ml
+        VIRTUAL_PORT: 80
+      restart: always
+      expose:
+       - 80
+      volumes:
+       - /sessions
+
+volumes:
+  wordpress2:
+  db2:
+
+networks:
+  default:
+    external:
+      name: nginx-proxy
